@@ -3,11 +3,8 @@ package org.helioviewer.jhv.base.image;
 import java.awt.image.DataBuffer;
 import java.nio.*;
 
-//import xerial.larray.buffer.LBuffer;
-
 abstract class NIODataBuffer extends DataBuffer {
     private final Buffer buffer;
-//    private final LBuffer lbuffer;
 
     private NIODataBuffer(int type, int size, int numBanks) {
         super(type, size, numBanks);
@@ -15,8 +12,6 @@ abstract class NIODataBuffer extends DataBuffer {
         int componentSize = DataBuffer.getDataTypeSize(type) / 8;
         long length = ((long) size) * componentSize * numBanks;
 
-//        lbuffer = new LBuffer(length);
-//        ByteBuffer byteBuffer = lbuffer.toDirectByteBuffer(0, (int) length).order(ByteOrder.nativeOrder());
         ByteBuffer byteBuffer = ByteBuffer.allocateDirect((int) length).order(ByteOrder.nativeOrder());
         switch (type) {
             case DataBuffer.TYPE_BYTE:
@@ -38,7 +33,6 @@ abstract class NIODataBuffer extends DataBuffer {
     }
 
     void free() {
-//        lbuffer.release();
     }
 
     @Override
