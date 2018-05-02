@@ -32,9 +32,6 @@ abstract class NIODataBuffer extends DataBuffer {
         return buffer;
     }
 
-    void free() {
-    }
-
     @Override
     public String toString() {
         return String.format("NIODataBuffer: %s", buffer);

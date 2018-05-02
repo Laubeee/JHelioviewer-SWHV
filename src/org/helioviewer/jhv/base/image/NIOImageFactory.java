@@ -49,11 +49,4 @@ public class NIOImageFactory {
             throw new IncompatibleClassChangeError("Not a NIODataBuffer byte backed image");
     }
 
-    public static void free(BufferedImage img) {
-        DataBuffer buffer = img.getRaster().getDataBuffer();
-        if (buffer instanceof NIODataBuffer) {
-            ((NIODataBuffer) buffer).free();
-        }
-    }
-
 }
