@@ -41,7 +41,7 @@ public class ExportMovie implements FrameListener {
         )).build(true);
     private static final Cache<Integer, ExportFrame> encodeBuffer = bufferManager.getCache("encode", Integer.class, ExportFrame.class);
 
-
+    private static int exportKey;
     private static MovieExporter exporter;
     private static GLGrab grabber;
 
@@ -88,11 +88,9 @@ public class ExportMovie implements FrameListener {
             BufferedImage screen = NIOImageFactory.createCompatible(grabber.w, exporter.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
             grabber.renderFrame(camera, gl, NIOImageFactory.getByteBuffer(screen));
 
-            ExportFrame frame = new ExportFrame(screen, EVEImage);
-            int key = frame.hashCode();
-            encodeBuffer.put(key, frame);
-
-            encodeExecutor.execute(new FrameConsumer(exporter, key, grabber.h, EVEMovieLinePosition));
+            encodeBuffer.put(exportKey, new ExportFrame(screen, EVEImage));
+            encodeExecutor.execute(new FrameConsumer(exporter, exportKey, grabber.h, EVEMovieLinePosition));
+            exportKey++;
         } catch (Exception e) {
             e.printStackTrace();
         }
