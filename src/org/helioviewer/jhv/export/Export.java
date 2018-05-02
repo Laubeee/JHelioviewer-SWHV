@@ -30,7 +30,7 @@ import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.ehcache.config.units.EntryUnit;
 import org.ehcache.config.units.MemoryUnit;
 
-public class ExportMovie implements FrameListener {
+public class Export implements FrameListener {
 
     private static final CacheManager bufferManager = CacheManagerBuilder.newCacheManagerBuilder()
         .with(CacheManagerBuilder.persistence(JHVGlobals.encodeCacheDir))
@@ -42,7 +42,7 @@ public class ExportMovie implements FrameListener {
     private static final Cache<Integer, ExportFrame> encodeBuffer = bufferManager.getCache("encode", Integer.class, ExportFrame.class);
 
     private static int exportKey;
-    private static MovieExporter exporter;
+    private static Encoder exporter;
     private static GLGrab grabber;
 
     private static RecordMode mode;
@@ -89,7 +89,7 @@ public class ExportMovie implements FrameListener {
             grabber.renderFrame(camera, gl, NIOImageFactory.getByteBuffer(screen));
 
             encodeBuffer.put(exportKey, new ExportFrame(screen, EVEImage));
-            encodeExecutor.execute(new FrameConsumer(exporter, exportKey, grabber.h, EVEMovieLinePosition));
+            encodeExecutor.execute(new FrameEncoder(exporter, exportKey, grabber.h, EVEMovieLinePosition));
             exportKey++;
         } catch (Exception e) {
             e.printStackTrace();
@@ -131,7 +131,7 @@ public class ExportMovie implements FrameListener {
         String prefix = JHVDirectory.EXPORTS.getPath() + "JHV_" + TimeUtils.formatFilename(System.currentTimeMillis());
         if (mode == RecordMode.SHOT) {
             try {
-                exporter = new PNGExporter();
+                exporter = new PNGEncoder();
                 exporter.open(prefix + ".png", canvasWidth, exportHeight, fps);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -140,7 +140,7 @@ public class ExportMovie implements FrameListener {
             Display.render(1);
         } else {
             try {
-                exporter = new JCodecExporter();
+                exporter = new JCodecEncoder();
                 exporter.open(prefix + ".mp4", canvasWidth, exportHeight, fps);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -178,14 +178,14 @@ public class ExportMovie implements FrameListener {
             shallStop = true;
     }
 
-    private static class FrameConsumer implements Runnable {
+    private static class FrameEncoder implements Runnable {
 
-        private final MovieExporter movieExporter;
+        private final Encoder movieExporter;
         private final int key;
         private final int frameH;
         private final int movieLinePosition;
 
-        FrameConsumer(MovieExporter _movieExporter, int _key, int _frameH, int _movieLinePosition) {
+        FrameEncoder(Encoder _movieExporter, int _key, int _frameH, int _movieLinePosition) {
             movieExporter = _movieExporter;
             key = _key;
             frameH = _frameH;
@@ -212,10 +212,10 @@ public class ExportMovie implements FrameListener {
 
     private static class CloseWriter implements Runnable {
 
-        private final MovieExporter movieExporter;
+        private final Encoder movieExporter;
         private final boolean keep;
 
-        CloseWriter(MovieExporter _movieExporter, boolean _keep) {
+        CloseWriter(Encoder _movieExporter, boolean _keep) {
             movieExporter = _movieExporter;
             keep = _keep;
         }
@@ -241,12 +241,12 @@ public class ExportMovie implements FrameListener {
         }
     }
 
-    private static final ExportMovie instance = new ExportMovie();
+    private static final Export instance = new Export();
 
-    private ExportMovie() {
+    private Export() {
     }
 
-    public static ExportMovie getInstance() {
+    public static Export getInstance() {
         return instance;
     }
 

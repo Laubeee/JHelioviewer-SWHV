@@ -2,7 +2,7 @@ package org.helioviewer.jhv;
 
 //import javax.swing.JOptionPane;
 
-import org.helioviewer.jhv.export.ExportMovie;
+import org.helioviewer.jhv.export.Export;
 //import org.helioviewer.jhv.gui.ImageViewerGui;
 import org.helioviewer.jhv.log.Log;
 
@@ -10,7 +10,7 @@ public class ExitHooks {
 
     private static final Thread finishMovieThread = new Thread(() -> {
         try {
-            ExportMovie.getInstance().disposeMovieWriter(false);
+            Export.getInstance().disposeMovieWriter(false);
         } catch (Exception e) {
             Log.warn("Movie was not shut down properly");
         }

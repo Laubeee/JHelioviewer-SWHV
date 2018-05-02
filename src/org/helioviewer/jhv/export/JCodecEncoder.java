@@ -22,7 +22,7 @@ import org.jcodec.containers.mp4.TrackType;
 import org.jcodec.containers.mp4.muxer.FramesMP4MuxerTrack;
 import org.jcodec.containers.mp4.muxer.MP4Muxer;
 
-class JCodecExporter implements MovieExporter {
+class JCodecEncoder implements Encoder {
 
     private String path;
     private int height, fps;

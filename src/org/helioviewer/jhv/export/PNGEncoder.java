@@ -6,7 +6,7 @@ import java.awt.image.BufferedImage;
 
 import javax.imageio.ImageIO;
 
-public class PNGExporter implements MovieExporter {
+public class PNGEncoder implements Encoder {
 
     private String path;
     private int height;

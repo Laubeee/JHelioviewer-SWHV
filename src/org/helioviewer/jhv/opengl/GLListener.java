@@ -8,7 +8,7 @@ import org.helioviewer.jhv.camera.Camera;
 import org.helioviewer.jhv.camera.CameraHelper;
 import org.helioviewer.jhv.display.Display;
 import org.helioviewer.jhv.display.Viewport;
-import org.helioviewer.jhv.export.ExportMovie;
+import org.helioviewer.jhv.export.Export;
 import org.helioviewer.jhv.gui.ImageViewerGui;
 import org.helioviewer.jhv.layers.ImageLayers;
 import org.helioviewer.jhv.layers.Layers;
@@ -91,9 +91,9 @@ public class GLListener implements GLEventListener {
         GLSLShapeShader.dispose(gl);
     }
 
-    private ExportMovie exporter;
+    private Export exporter;
 
-    public void attachExport(ExportMovie me) {
+    public void attachExport(Export me) {
         exporter = me;
     }
 

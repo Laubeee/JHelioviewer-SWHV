@@ -31,7 +31,7 @@ import javax.swing.event.ChangeListener;
 
 import org.helioviewer.jhv.astronomy.Carrington;
 import org.helioviewer.jhv.display.Display;
-import org.helioviewer.jhv.export.ExportMovie;
+import org.helioviewer.jhv.export.Export;
 import org.helioviewer.jhv.gui.ComponentUtils;
 import org.helioviewer.jhv.gui.ImageViewerGui;
 import org.helioviewer.jhv.gui.UIGlobals;
@@ -466,9 +466,9 @@ public class MoviePanel extends JPanel implements ChangeListener, ObservationSel
                 SpeedUnit unit = (SpeedUnit) Objects.requireNonNull(speedUnitComboBox.getSelectedItem());
                 if (unit == SpeedUnit.FRAMESPERSECOND)
                     fps = ((SpinnerNumberModel) speedSpinner.getModel()).getNumber().intValue();
-                ExportMovie.start(size.getSize().width, size.getSize().height, size.isInternal(), fps, mode);
+                Export.start(size.getSize().width, size.getSize().height, size.isInternal(), fps, mode);
             } else {
-                ExportMovie.stop();
+                Export.stop();
             }
         }
 

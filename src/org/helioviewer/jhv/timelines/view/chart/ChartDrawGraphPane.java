@@ -25,7 +25,7 @@ import javax.swing.event.MouseInputListener;
 
 import org.helioviewer.jhv.base.Regex;
 import org.helioviewer.jhv.data.cache.JHVEventCache;
-import org.helioviewer.jhv.export.ExportMovie;
+import org.helioviewer.jhv.export.Export;
 import org.helioviewer.jhv.gui.UIGlobals;
 import org.helioviewer.jhv.opengl.GLInfo;
 import org.helioviewer.jhv.time.TimeUtils;
@@ -76,10 +76,10 @@ public class ChartDrawGraphPane extends JComponent implements MouseInputListener
     public void setVisible(boolean visible) {
         super.setVisible(visible);
         if (visible) {
-            ExportMovie.EVEImage = screenImage;
+            Export.EVEImage = screenImage;
             DrawController.start();
         } else {
-            ExportMovie.EVEImage = null;
+            Export.EVEImage = null;
             DrawController.stop();
         }
     }
@@ -142,7 +142,7 @@ public class ChartDrawGraphPane extends JComponent implements MouseInputListener
         if (width > 0 && height > 0) {
             if (width != lastWidth || height != lastHeight) {
                 screenImage = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration().createCompatibleImage(width, height, Transparency.OPAQUE);
-                ExportMovie.EVEImage = screenImage;
+                Export.EVEImage = screenImage;
 
                 lastWidth = width;
                 lastHeight = height;
@@ -385,7 +385,7 @@ public class ChartDrawGraphPane extends JComponent implements MouseInputListener
 
     private static void drawMovieLine(Graphics2D g) {
         int movieLinePosition = DrawController.getMovieLinePosition();
-        ExportMovie.EVEMovieLinePosition = movieLinePosition;
+        Export.EVEMovieLinePosition = movieLinePosition;
         if (movieLinePosition < 0) {
             return;
         }
