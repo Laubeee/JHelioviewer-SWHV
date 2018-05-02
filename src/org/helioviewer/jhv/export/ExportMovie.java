@@ -22,7 +22,25 @@ import org.helioviewer.jhv.time.TimeUtils;
 
 import com.jogamp.opengl.GL2;
 
+import org.ehcache.Cache;
+import org.ehcache.CacheManager;
+import org.ehcache.config.builders.CacheConfigurationBuilder;
+import org.ehcache.config.builders.CacheManagerBuilder;
+import org.ehcache.config.builders.ResourcePoolsBuilder;
+import org.ehcache.config.units.EntryUnit;
+import org.ehcache.config.units.MemoryUnit;
+
 public class ExportMovie implements FrameListener {
+
+    private static final CacheManager bufferManager = CacheManagerBuilder.newCacheManagerBuilder()
+        .with(CacheManagerBuilder.persistence(JHVGlobals.encodeCacheDir))
+        .withCache("encode", CacheConfigurationBuilder.newCacheConfigurationBuilder(Integer.class, ExportFrame.class,
+                                            ResourcePoolsBuilder.newResourcePoolsBuilder()
+                                                .heap(5, EntryUnit.ENTRIES)
+                                                .disk(8, MemoryUnit.GB, false)
+        )).build(true);
+    private static final Cache<Integer, ExportFrame> encodeBuffer = bufferManager.getCache("encode", Integer.class, ExportFrame.class);
+
 
     private static MovieExporter exporter;
     private static GLGrab grabber;
@@ -31,7 +49,7 @@ public class ExportMovie implements FrameListener {
     private static boolean stopped;
     private static boolean shallStop;
 
-    private final ExecutorService encodeExecutor = Executors.newFixedThreadPool(1, new JHVThread.NamedThreadFactory("Movie Encode"));
+    private final ExecutorService encodeExecutor = Executors.newSingleThreadExecutor(new JHVThread.NamedThreadFactory("Movie Encode"));
 
     public static BufferedImage EVEImage = null;
     public static int EVEMovieLinePosition = -1;
@@ -69,8 +87,12 @@ public class ExportMovie implements FrameListener {
         try {
             BufferedImage screen = NIOImageFactory.createCompatible(grabber.w, exporter.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
             grabber.renderFrame(camera, gl, NIOImageFactory.getByteBuffer(screen));
-            BufferedImage eve = EVEImage == null ? null : NIOImageFactory.copyImage(EVEImage);
-            encodeExecutor.execute(new FrameConsumer(exporter, screen, grabber.h, eve, EVEMovieLinePosition));
+
+            ExportFrame frame = new ExportFrame(screen, EVEImage);
+            int key = frame.hashCode();
+            encodeBuffer.put(key, frame);
+
+            encodeExecutor.execute(new FrameConsumer(exporter, key, grabber.h, EVEMovieLinePosition));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -161,15 +183,13 @@ public class ExportMovie implements FrameListener {
     private static class FrameConsumer implements Runnable {
 
         private final MovieExporter movieExporter;
-        private final BufferedImage mainImage;
-        private final BufferedImage eveImage;
+        private final int key;
         private final int frameH;
         private final int movieLinePosition;
 
-        FrameConsumer(MovieExporter _movieExporter, BufferedImage _mainImage, int _frameH, BufferedImage _eveImage, int _movieLinePosition) {
+        FrameConsumer(MovieExporter _movieExporter, int _key, int _frameH, int _movieLinePosition) {
             movieExporter = _movieExporter;
-            mainImage = _mainImage;
-            eveImage = _eveImage;
+            key = _key;
             frameH = _frameH;
             movieLinePosition = _movieLinePosition;
         }
@@ -177,11 +197,14 @@ public class ExportMovie implements FrameListener {
         @Override
         public void run() {
             try {
-                ExportUtils.pasteCanvases(mainImage, frameH, eveImage, movieLinePosition, movieExporter.getHeight());
-                if (eveImage != null)
-                    NIOImageFactory.free(eveImage);
+                ExportFrame frame = encodeBuffer.get(key);
+                if (frame == null)
+                    return;
+                encodeBuffer.remove(key);
+
+                BufferedImage mainImage = frame.getMainImage();
+                ExportUtils.pasteCanvases(mainImage, frameH, frame.getEveImage(), movieLinePosition, movieExporter.getHeight());
                 movieExporter.encode(mainImage);
-                NIOImageFactory.free(mainImage);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -215,6 +238,7 @@ public class ExportMovie implements FrameListener {
                 File f = new File(movieExporter.getPath());
                 f.delete();
             }
+            encodeBuffer.clear();
             System.gc();
         }
     }

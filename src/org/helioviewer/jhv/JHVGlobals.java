@@ -120,16 +120,19 @@ public class JHVGlobals {
             libCacheDir = FileUtils.tempDir(JHVDirectory.CACHE.getFile(), "lib");
             fileCacheDir = FileUtils.tempDir(JHVDirectory.CACHE.getFile(), "file");
             clientCacheDir = FileUtils.tempDir(JHVDirectory.CACHE.getFile(), "client");
+            encodeCacheDir = FileUtils.tempDir(JHVDirectory.CACHE.getFile(), "encode");
         } catch (Exception e) {
             libCacheDir = new File(System.getProperty("java.io.tmpdir"));
             fileCacheDir = new File(System.getProperty("java.io.tmpdir"));
             clientCacheDir = new File(System.getProperty("java.io.tmpdir"));
+            encodeCacheDir = new File(System.getProperty("java.io.tmpdir"));
         }
     }
 
     public static File libCacheDir;
     public static File fileCacheDir;
     public static File clientCacheDir;
+    public static File encodeCacheDir;
     public static final File jpipStreamCacheDir = new File(JHVDirectory.CACHE.getFile(), "JPIPStream");
     public static final File jpipLevelCacheDir = new File(JHVDirectory.CACHE.getFile(), "JPIPLevel");
 
