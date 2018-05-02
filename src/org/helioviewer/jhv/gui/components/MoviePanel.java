@@ -443,6 +443,7 @@ public class MoviePanel extends JPanel implements ChangeListener, ObservationSel
     }
 
     public static void recordPanelSetEnabled(boolean enabled) {
+        ComponentUtils.setEnabled(modePanel, enabled);
         ComponentUtils.setEnabled(recordPanel, enabled);
     }
 
